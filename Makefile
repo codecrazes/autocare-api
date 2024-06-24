@@ -28,7 +28,7 @@ all:
 	echo 'PYTHONPATH="$(PYTHONPATH)"' > .env
 
 .venv:
-	python3.11 -m venv $(VIRTUALENV)
+	python3.12 -m venv $(VIRTUALENV)
 	pip install --upgrade pip
 
 clean:
