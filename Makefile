@@ -1,13 +1,13 @@
 # Makefile version 22.01.19.1
 
 # project settings
-PROJECT_PATH  := $(shell ls */settings.py | xargs dirname | head -n 1)
+PROJECT_PATH  := autocare
+ENVIRONMENT   ?= development
 
 # venv settings
 export PYTHONPATH := $(PROJECT_PATH):tests/fixtures
 export VIRTUALENV := $(PWD)/.venv
 export PATH       := $(VIRTUALENV)/bin:$(PATH)
-ENVIRONMENT   ?= development
 
 # unittest logging level
 test: export LOG_LEVEL=CRITICAL
@@ -16,6 +16,9 @@ test: export LOG_LEVEL=CRITICAL
 ifeq ($(filter undefine,$(value .FEATURES)),)
 SHELL = env PATH="$(PATH)" /bin/bash
 endif
+
+build: 
+	docker-compose up --build -d
 
 .PHONY: .env .venv
 
@@ -29,9 +32,10 @@ all:
 	pip install --upgrade pip
 
 clean:
-	rm -rf dependencies .pytest_cache .coverage .aws-sam
+	rm -rf dependencies .pytest_cache .coverage
 	find $(PROJECT_PATH) -name __pycache__ | xargs rm -rf
 	find tests -name __pycache__ | xargs rm -rf
+	docker-compose down
 
 install-hook:
 	@echo "make lint" > .git/hooks/pre-commit

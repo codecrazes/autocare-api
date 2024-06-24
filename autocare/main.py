@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI
 from pony.orm import Database, PrimaryKey, Required, db_session
 
@@ -11,7 +12,13 @@ class MyEntity(db.Entity):
     attr1 = Required(str)
 
 
-db.bind(provider="mysql", host="127.0.0.1", user="root", passwd="passwd", db="autocare")
+db.bind(
+    provider="mysql",
+    host=os.getenv("DB_HOST", "127.0.0.1"),
+    user=os.getenv("DB_USER", "root"),
+    passwd=os.getenv("DB_PASSWORD", "passwd"),
+    db=os.getenv("DB_NAME", "autocare"),
+)
 db.generate_mapping(create_tables=True)
 
 
