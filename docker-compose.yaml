@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: passwd
+      MYSQL_DATABASE: autocare
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  app:
+    build: .
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: db
+      DB_USER: root
+      DB_PASSWORD: passwd
+      DB_NAME: autocare
+
+volumes:
+  mysql_data:
