@@ -18,10 +18,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DB_HOST: db
-      DB_USER: root
-      DB_PASSWORD: passwd
-      DB_NAME: autocare
+      DB_URL: "mysql+pymysql://root:passwd@db:3306/autocare"
 
 volumes:
   mysql_data:

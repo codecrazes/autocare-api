@@ -17,8 +17,11 @@ ifeq ($(filter undefine,$(value .FEATURES)),)
 SHELL = env PATH="$(PATH)" /bin/bash
 endif
 
-build: 
+build:
 	docker-compose up --build -d
+
+stop:
+	docker-compose down
 
 .PHONY: .env .venv
 
@@ -28,7 +31,7 @@ all:
 	echo 'PYTHONPATH="$(PYTHONPATH)"' > .env
 
 .venv:
-	python3.12 -m venv $(VIRTUALENV)
+	python -m venv $(VIRTUALENV)
 	pip install --upgrade pip
 
 clean:
