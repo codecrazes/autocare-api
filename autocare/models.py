@@ -1,19 +1,21 @@
-from sqlalchemy import Boolean, Column, Integer, String
+from datetime import datetime
 
-from database import Base
+from sqlalchemy import func
+from sqlalchemy.orm import Mapped, mapped_column, registry
+
+table_registry = registry()
 
 
-class Users(Base):
+@table_registry.mapped_as_dataclass
+class User:
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(200), unique=True, index=True)
-    username = Column(String(200), unique=True, index=True)
-    first_name = Column(String(200))
-    last_name = Column(String(225))
-    hashed_password = Column(String(225))
-    is_active = Column(Boolean, default=True)
-    phone_number = Column(String(225))
-    # address_id = Column(Integer, ForeignKey('address.id'), nullable=True)
-
-    # address = relationship('address', back_populates='owner')
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    username: Mapped[str] = mapped_column(unique=True)
+    first_name: Mapped[str] = mapped_column()
+    last_name: Mapped[str] = mapped_column()
+    email: Mapped[str] = mapped_column(unique=True)
+    phone_number: Mapped[str] = mapped_column()
+    password: Mapped[str] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
+    is_active: Mapped[bool] = mapped_column(default=False)

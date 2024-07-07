@@ -18,7 +18,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DB_URL: "mysql+pymysql://root:passwd@db:3306/autocare"
+      DATABASE_URL: "mysql+pymysql://root:passwd@db:3306/autocare"
+      SECRET_KEY: "44bd8a85fa868ac515a56bce5209a3bc66ca90f9fa4fbebe83c17f9c1cb9620dc30fc8a42e5d8422d62e617a18816cefc7a6d3462e585aa377267c97097b5a814c98a46582b41cd326798584b8030e8b0f39a42f979ac8e6cd52e30bec5b744450fc7e801e02d91c0bdd8816d0414b6635e4ab7f16aefbff924fb0926117993bab4b3695c4311107fe6ae016eb7b0fa58473618e6c4fbaead7f0785c016c2519039aa7753c79adfb55cd39939f96ea0ade7733479696b34b691b19cf3ff854b84bff164b379328ced7aa4daf1670014f9bd162875fa34cc62dca82220eff5537452a7ebc128ff5a8a63781a1d366492c6a4ae7c445a845e26513aac04edc29eb"
 
 volumes:
   mysql_data:

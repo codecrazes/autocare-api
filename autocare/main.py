@@ -1,16 +1,13 @@
+import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
-
-import models
-from database import engine
-from routers import users
+from routers import auth, users
 
 app = FastAPI()
 
-models.Base.metadata.create_all(bind=engine)
-
 app.include_router(users.router)
+app.include_router(auth.router)
+
 
 app.add_middleware(
     CORSMiddleware,
