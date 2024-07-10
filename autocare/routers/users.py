@@ -1,13 +1,21 @@
+import secrets
 import sys
 from http import HTTPStatus
 from typing import Annotated
 
+from routers.auth import login_google
 from conf.settings import settings
 from database import get_session
 from fastapi import APIRouter, Depends, HTTPException
 from models import User
 from schemas import Message, UserList, UserPublic, UserSchema, UserUpdateSchema
-from security import generate_confirmation_token, get_current_user, get_password_hash, send_email
+from security import (
+    generate_confirmation_token,
+    get_current_user,
+    get_google_user_info,
+    get_password_hash,
+    send_email,
+)
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -54,9 +62,65 @@ def create_user(user: UserSchema, session: Session):
     session.refresh(db_user)
 
     token = generate_confirmation_token(user.email)
-    confirm_url = f"{settings.BASE_URL}/auth/confirm/{token}"
+    confirm_url = f"{settings.BASE_URL}/email-confirmated/{token}"
     subject, body = create_confirmation_email_template(
         f"{user.first_name} {user.last_name}", confirm_url
+    )
+
+    send_email(subject, user.email, body)
+
+    return db_user
+
+
+@router.post("/google", status_code=HTTPStatus.CREATED, response_model=UserPublic)
+def create_user_google(session: Session):
+    code = login_google()
+
+    user_info = get_google_user_info(code)
+
+    user = UserSchema(
+        email=user_info.get("email"),
+        first_name=user_info.get("given_name"),
+        last_name=user_info.get("family_name"),
+        username=user_info.get("email"),
+        phone_number=user_info.get("phone_number", "Não disponível"),
+    )
+
+    db_user = session.scalar(
+        select(User).where((User.username == user.username) | (User.email == user.email))
+    )
+
+    if db_user:
+        if db_user.username == user.username:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Username already exists",
+            )
+        elif db_user.email == user.email:
+            raise HTTPException(
+                status_code=HTTPStatus.BAD_REQUEST,
+                detail="Email already exists",
+            )
+
+    hashed_password = get_password_hash(secrets.token_hex(16))
+
+    db_user = User(
+        email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
+        username=user.username,
+        phone_number=user.phone_number,
+        password=hashed_password,
+    )
+
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+
+    token = generate_confirmation_token(user.email)
+    reset_url = f"{settings.BASE_URL}/auth/new-password/{token}"
+    subject, body = create_password_reset_email_template(
+        f"{user.first_name} {user.last_name}", reset_url
     )
 
     send_email(subject, user.email, body)
@@ -106,7 +170,7 @@ def new_password(
     user = session.scalar(select(User).where(User.email == email))
 
     token = generate_confirmation_token(user.email)
-    reset_url = f"{settings.BASE_URL}/auth/new-password/{token}"
+    reset_url = f"{settings.BASE_URL}/new-password/{token}"
     subject, body = create_password_reset_email_template(
         f"{user.first_name} {user.last_name}", reset_url
     )

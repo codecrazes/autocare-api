@@ -4,10 +4,12 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from http import HTTPStatus
 
+import requests
+
 from conf.settings import Settings
 from database import get_session
 from fastapi import Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from itsdangerous import URLSafeTimedSerializer
 from jwt import DecodeError, decode, encode
 from models import User
@@ -70,6 +72,54 @@ def confirm_token(token, expiration=3600):
         return False
 
     return email
+
+
+def get_google_user_info(code: str):
+    token_url = "https://oauth2.googleapis.com/token"
+    data = {
+        "code": code,
+        "client_id": settings.GOOGLE_CLIENT_ID,
+        "client_secret": settings.GOOGLE_CLIENT_SECRET,
+        "redirect_uri": settings.GOOGLE_REDIRECT_URI,
+        "grant_type": "authorization_code",
+    }
+
+    response = requests.post(token_url, data=data)
+    token_data = response.json()
+
+    if "access_token" not in token_data:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED, detail="Failed to obtain access token"
+        )
+
+    access_token = token_data["access_token"]
+    user_info_response = requests.get(
+        "https://www.googleapis.com/oauth2/v1/userinfo",
+        headers={"Authorization": f"Bearer {access_token}"},
+    )
+
+    if user_info_response.status_code != HTTPStatus.OK:
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="Failed to fetch user info")
+
+    return user_info_response.json()
+
+
+def auth_google(code: str, session: Session):
+    user_info = get_google_user_info(code)
+
+    email = user_info.get("email")
+
+    if not email:
+        raise HTTPException(
+            status_code=HTTPStatus.UNAUTHORIZED, detail="Email not provided by Google"
+        )
+
+    user = session.scalar(select(User).where(User.email == email))
+
+    if not user:
+        raise HTTPException(status_code=HTTPStatus.UNAUTHORIZED, detail="User not found")
+
+    return OAuth2PasswordRequestForm(username=user.email, password=user.password)
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
