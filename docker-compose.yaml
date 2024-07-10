@@ -17,8 +17,8 @@ services:
       - db
     ports:
       - "8000:8000"
-    environment:
-      DB_URL: "mysql+pymysql://root:passwd@db:3306/autocare"
+    env_file:
+      - .env
 
 volumes:
   mysql_data:

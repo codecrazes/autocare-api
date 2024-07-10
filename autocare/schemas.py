@@ -1,22 +1,42 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
-class UserBase(BaseModel):
-    email: EmailStr
+class Message(BaseModel):
+    message: str
+
+
+class UserSchema(BaseModel):
     username: str
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    phone_number: Optional[str] = None
-
-
-class UserCreate(UserBase):
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone_number: str
     password: str
 
 
-class User(UserBase):
-    id: int
-    is_active: bool
+class UserUpdateSchema(BaseModel):
+    email: EmailStr
+    phone_number: str
 
-    class Config:
-        orm_mode = True
+
+class UserPublic(BaseModel):
+    id: int
+    username: str
+    first_name: str
+    last_name: str
+    email: EmailStr
+    phone_number: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserList(BaseModel):
+    users: list[UserPublic]
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
