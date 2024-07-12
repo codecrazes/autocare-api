@@ -34,6 +34,24 @@ class Address:
 class Mechanics:
     __tablename__ = "mechanics"
     id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    name_mechanics: Mapped[str] = mapped_column()
+    cnpj: Mapped[str] = mapped_column(unique=True)
+    phone_number: Mapped[str] = mapped_column(unique=True)
+    email: Mapped[str] = mapped_column(unique=True)
+    open_mechanics: Mapped[datetime] = mapped_column()
+    close_mechanics: Mapped[datetime] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(initi=False, sever_default=func.now())
+
+class Veicle_Information:
+    __tablename__ = "veicle_information"
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    brand: Mapped[str] = mapped_column()
+    model: Mapped[str] = mapped_column()
+    year: Mapped[int] = mapped_column()
+    license_plate: Mapped[str] = mapped_column()
+    chassis: Mapped[str] = mapped_column()
+    current_mileage: Mapped[int] = mapped_column()
+    
     
 
 
