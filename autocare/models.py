@@ -19,3 +19,22 @@ class User:
     password: Mapped[str] = mapped_column()
     created_at: Mapped[datetime] = mapped_column(init=False, server_default=func.now())
     is_active: Mapped[bool] = mapped_column(default=False)
+
+class Address:
+    __tablename__ = "adrress"
+
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    local: Mapped[str] = mapped_column()
+    number: Mapped[int] = mapped_column()
+    neighbornhoodi: Mapped[str] = mapped_column()
+    city: Mapped[str] = mapped_column()
+    state: Mapped[str] = mapped_column()
+    postal_code: Mapped[str] = mapped_column()
+
+class Mechanics:
+    __tablename__ = "mechanics"
+    id: Mapped[int] = mapped_column(init=False, primary_key=True)
+    
+
+
+
