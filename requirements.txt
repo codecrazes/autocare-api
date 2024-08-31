@@ -7,3 +7,5 @@ pydantic[email]==2.8.0
 pwdlib[argon2]==0.2.0
 pyjwt==2.8.0
 requests==2.32.3
+google-auth==2.32.0
+psycopg2-binary==2.9.9

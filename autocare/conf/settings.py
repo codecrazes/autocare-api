@@ -9,10 +9,10 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     SENDER_EMAIL: str = ""
     SENDER_PASSWORD: str = ""
-    BASE_URL: str = "http://127.0.0.1:3000"
+    BASE_URL: str = "https://www.autocare.app.br/"
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
-    GOOGLE_REDIRECT_URI: str = "http://127.0.0.1:8000/auth/token"
+    GOOGLE_REDIRECT_URI: str = "https://www.autocare.app.br/auth/token"
 
 
 settings = Settings()

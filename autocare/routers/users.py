@@ -1,18 +1,15 @@
-import secrets
 import sys
 from http import HTTPStatus
 from typing import Annotated
 
-from routers.auth import login_google
 from conf.settings import settings
 from database import get_session
 from fastapi import APIRouter, Depends, HTTPException
 from models import User
-from schemas import Message, UserList, UserPublic, UserSchema, UserUpdateSchema
+from schemas import Message, UserPublic, UserSchema, UserUpdateSchema
 from security import (
     generate_confirmation_token,
     get_current_user,
-    get_google_user_info,
     get_password_hash,
     send_email,
 )
@@ -72,76 +69,14 @@ def create_user(user: UserSchema, session: Session):
     return db_user
 
 
-@router.post("/google", status_code=HTTPStatus.CREATED, response_model=UserPublic)
-def create_user_google(session: Session):
-    code = login_google()
-
-    user_info = get_google_user_info(code)
-
-    user = UserSchema(
-        email=user_info.get("email"),
-        first_name=user_info.get("given_name"),
-        last_name=user_info.get("family_name"),
-        username=user_info.get("email"),
-        phone_number=user_info.get("phone_number", "Não disponível"),
-    )
-
-    db_user = session.scalar(
-        select(User).where((User.username == user.username) | (User.email == user.email))
-    )
-
-    if db_user:
-        if db_user.username == user.username:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Username already exists",
-            )
-        elif db_user.email == user.email:
-            raise HTTPException(
-                status_code=HTTPStatus.BAD_REQUEST,
-                detail="Email already exists",
-            )
-
-    hashed_password = get_password_hash(secrets.token_hex(16))
-
-    db_user = User(
-        email=user.email,
-        first_name=user.first_name,
-        last_name=user.last_name,
-        username=user.username,
-        phone_number=user.phone_number,
-        password=hashed_password,
-    )
-
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
-
-    token = generate_confirmation_token(user.email)
-    reset_url = f"{settings.BASE_URL}/auth/new-password/{token}"
-    subject, body = create_password_reset_email_template(
-        f"{user.first_name} {user.last_name}", reset_url
-    )
-
-    send_email(subject, user.email, body)
-
-    return db_user
-
-
-@router.get("/{user_id}", response_model=UserPublic)
-def read_user(user_id: int, session: Session):
-    user = session.scalar(select(User).where(User.id == user_id))
+@router.get("/", response_model=UserPublic)
+def read_user(session: Session, current_user: CurrentUser):
+    user = session.scalar(select(User).where(User.id == current_user.id))
 
     if not user:
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="User not found")
 
     return user
-
-
-@router.get("/", response_model=UserList)
-def read_users(session: Session, skip: int = 0, limit: int = 100):
-    users = session.scalars(select(User).offset(skip).limit(limit)).all()
-    return {"users": users}
 
 
 @router.put("/{user_id}", response_model=UserPublic)
