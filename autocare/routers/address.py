@@ -33,6 +33,7 @@ def create_address(address: AddressSchema, session: Session, user: CurrentUser):
     db_address = Address(
         user_id=user.id,
         street=address.street,
+        neighborhood=address.neighborhood,
         number=address.number,
         city=address.city,
         state=address.state,
@@ -68,6 +69,7 @@ def update_address(address: AddressSchema, session: Session, user: CurrentUser):
         raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="Address not found")
 
     db_address.street = address.street
+    db_address.neighborhood = address.neighborhood
     db_address.number = address.number
     db_address.city = address.city
     db_address.state = address.state

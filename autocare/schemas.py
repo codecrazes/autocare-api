@@ -78,8 +78,8 @@ class VehicleProblemList(BaseModel):
 
 
 class AddressSchema(BaseModel):
-    user_id: int
     street: str
+    neighborhood: str
     number: str
     city: str
     state: str
@@ -88,10 +88,90 @@ class AddressSchema(BaseModel):
 
 class AddressPublic(BaseModel):
     id: int
-    user_id: int
     street: str
+    neighborhood: str
     number: str
     city: str
     state: str
     zip_code: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProblemDetailSchema(BaseModel):
+    description: str
+    service: str
+    price: str
+    price_details: str
+
+
+class DiagnosisSchema(BaseModel):
+    id: int
+    vehicle_problem_id: int
+    symptoms: str
+    predicted_problem: str
+    problem_details: ProblemDetailSchema
+
+
+class DiagnosisCreate(BaseModel):
+    vehicle_problem_id: int
+    vehicle_id: int
+    symptoms: list[str]
+
+
+class DiagnosisPublic(BaseModel):
+    id: int
+    vehicle_problem_id: int
+    user_id: int
+    symptoms: str
+    predicted_problem: str
+    problem_details: ProblemDetailSchema
+    model_config = ConfigDict(from_attributes=True)
+
+
+class MechanicSchema(BaseModel):
+    name: str
+    image: str
+    rating: float
+    open24hrs: bool
+    wifi: bool
+    take_and_deliver: bool
+    accessible: bool
+    waiting_room: bool
+    address: AddressSchema
+    available_services: str
+    specialties: str
+
+
+class MechanicPublic(BaseModel):
+    id: int
+    name: str
+    image: str
+    rating: float
+    open24hrs: bool
+    wifi: bool
+    take_and_deliver: bool
+    accessible_: bool
+    waiting_room: bool
+    available_services: str
+    specialties: str
+    address: str
+    model_config = ConfigDict(from_attributes=True)
+
+
+class BookingSchema(BaseModel):
+    mechanic_id: int
+    date: str
+    service: str
+    price: str
+    status: str
+
+
+class BookingPublic(BaseModel):
+    id: int
+    user_id: int
+    mechanic_id: int
+    date: str
+    service: str
+    price: str
+    status: str
     model_config = ConfigDict(from_attributes=True)

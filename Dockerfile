@@ -2,7 +2,13 @@ FROM python:3.12-alpine
 
 WORKDIR /app
 
+RUN apk add --no-cache gcc musl-dev g++ libffi-dev
+
 COPY ./requirements.txt /app/requirements.txt
+
+COPY ./model.pkl /app/model.pkl
+
+COPY ./vehicle-problems.csv /app/vehicle-problems.csv
 
 COPY /autocare /app
 

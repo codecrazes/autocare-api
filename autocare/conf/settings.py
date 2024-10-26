@@ -13,6 +13,10 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = "https://www.autocare.app.br/auth/token"
+    WATSON_BASE_URL: str = ""
+    WATSON_API_KEY: str = ""
+    WATSON_CLIENT_ID: str = ""
+    WATSON_INSTANCE_ID: str = ""
 
 
 settings = Settings()

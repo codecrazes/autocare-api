@@ -31,6 +31,7 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(default=False)
 
     vehicles: Mapped[List["Vehicle"]] = relationship("Vehicle", back_populates="user")
+    addresses: Mapped[List["Address"]] = relationship("Address", back_populates="user")
 
 
 class Address(Base):
@@ -39,6 +40,7 @@ class Address(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     street: Mapped[str] = mapped_column()
+    neighborhood: Mapped[str] = mapped_column()
     number: Mapped[str] = mapped_column()
     city: Mapped[str] = mapped_column()
     state: Mapped[str] = mapped_column()
@@ -73,3 +75,47 @@ class VehicleProblem(Base):
     created_at: Mapped[datetime] = mapped_column(server_default=func.now())
 
     vehicle: Mapped[Vehicle] = relationship("Vehicle", back_populates="problems")
+
+
+class Diagnosis(Base):
+    __tablename__ = "diagnosis"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    vehicle_problem_id: Mapped[int] = mapped_column(ForeignKey("vehicle_problems.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    symptoms: Mapped[str] = mapped_column()
+    predicted_problem: Mapped[str] = mapped_column()
+    description: Mapped[str] = mapped_column()
+    service: Mapped[str] = mapped_column()
+    price: Mapped[str] = mapped_column()
+    price_details: Mapped[str] = mapped_column()
+
+
+class Mechanic(Base):
+    __tablename__ = "mechanics"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column()
+    image: Mapped[str] = mapped_column()
+    rating: Mapped[float] = mapped_column()
+    open24hrs: Mapped[bool] = mapped_column()
+    wifi: Mapped[bool] = mapped_column()
+    take_and_deliver: Mapped[bool] = mapped_column()
+    accessible_: Mapped[bool] = mapped_column()
+    waiting_room: Mapped[bool] = mapped_column()
+    address: Mapped[str] = mapped_column()
+    available_services: Mapped[str] = mapped_column()
+    specialties: Mapped[str] = mapped_column()
+
+
+class Bookings(Base):
+    __tablename__ = "bookings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    mechanic_id: Mapped[int] = mapped_column(ForeignKey("mechanics.id"))
+    date: Mapped[datetime] = mapped_column()
+    service: Mapped[str] = mapped_column()
+    price: Mapped[str] = mapped_column()
+    status: Mapped[str] = mapped_column()
+    created_at: Mapped[datetime] = mapped_column(server_default=func.now())

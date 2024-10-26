@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import address, auth, users, vehicle, vehicle_problems
+from routers import address, auth, bookings, diagnosis, mechanics, users, vehicle, vehicle_problems
 
 app = FastAPI()
 
@@ -10,6 +10,9 @@ app.include_router(auth.router)
 app.include_router(vehicle.router)
 app.include_router(vehicle_problems.router)
 app.include_router(address.router)
+app.include_router(diagnosis.router)
+app.include_router(mechanics.router)
+app.include_router(bookings.router)
 
 app.add_middleware(
     CORSMiddleware,
